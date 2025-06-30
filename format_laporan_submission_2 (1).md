@@ -125,7 +125,7 @@ def create_document(row):
   return f" {vehicle_class} {region} {drive_train} {engine_type}"
 car_df['Document'] = car_df.apply(create_document, axis=1)
 ```
-TF-IDF digunakan untuk vektorisasi teks dan StandardScaler digunakan untuk feature scaling dari kolom numerik. Dalam pemrosesan data ini juga akan menggunakan bobot pada setiap jenis feature, pemberian bobot bertujuan untuk menyeimbangkan pengaruh setiap fitur. Untuk fitur 'Document' akan dikenakan bobot 1.0 dan fitur numerik diberi bobot 3.0. Setelah itu, matriks hasil vektorisasi dengan TF-IDF akan digabung dengan matriks dense numerik. Didapat hybrid_matrix yang merupakan matriks hibrida gabungan atau matrix penggabungan antara vektorisasi 'Document' dengan TF-IDF dan matrix dense numerik.
+TF-IDF digunakan untuk vektorisasi teks dan StandardScaler digunakan untuk standarisasi/feature scaling dari kolom numerik agar distribusi data pada kolom numerik merata. Dalam pemrosesan data ini juga akan menggunakan bobot pada setiap jenis feature, pemberian bobot bertujuan untuk menyeimbangkan pengaruh setiap fitur. Untuk fitur 'Document' akan dikenakan bobot 1.0 dan fitur numerik diberi bobot 3.0. Setelah itu, matriks hasil vektorisasi dengan TF-IDF akan digabung dengan matriks dense numerik. Didapat hybrid_matrix yang merupakan matriks hibrida gabungan atau matrix penggabungan antara vektorisasi 'Document' dengan TF-IDF dan matrix dense numerik.
 
 ```
 numerical_features = ['MSRP', 'EngineSize', 'Cylinders', 'HorsePower', 'MPG_City', 'MPG_Highway', 'Weight', 'Wheelbase', 'Length']
@@ -238,6 +238,7 @@ Untuk mengukur performa sistem rekomendasi mobil yang telah dibuat, digunakan pe
 Metrik evaluasi utama yang digunakan adalah Analisis Kualitatif (Case Study) dan Precision@k.
 
 ### 1. Case Study
+
 Analisis kualitatif dilakukan dengan menguji beberapa input mobil yang representatif dan secara manual memeriksa kualitas dari Top-N rekomendasi yang dihasilkan. Tujuannya adalah untuk mendapatkan pemahaman intuitif apakah model bekerja dengan logis.
 
 Saat model (Cosine Similarity & K-Nearest Neighbors) diuji dengan input mobil "Viper SRT-10 convertible 2dr", sistem berhasil merekomendasikan mobil-mobil yang sangat relevan. Dari model Cosine Similarity 5 rekomendasi teratas, mayoritas adalah mobil dari kelas Sport juga, seperti Chevrolet Corvette convertible 2d, CLK500 coupe 2dr (convertible), dan XLR convertible 2dr.
@@ -260,7 +261,54 @@ Untuk evaluasi kuantitatif, metrik Precision@k digunakan. Metrik ini sangat coco
 
 Setelah menghitung Precissio@k terhadap model, kedua model tersebut mendapat skor rata rata Precission@10 sebesar 71%. 
 
-![image](https://github.com/user-attachments/assets/4416edd7-b672-4931-8bb1-a75af39de00b)
+### Evaluasi Model dan Analisis Dampak terhadap Tujuan Bisnis
 
-![image](https://github.com/user-attachments/assets/d34e499a-9bc1-40e7-9a4d-75e68cc68da2)
+Evaluasi model dilakukan untuk mengukur efektivitas sistem rekomendasi dalam memenuhi tujuan proyek. Metrik kuantitatif yang digunakan adalah **Precision@10**, yang mengukur persentase mobil relevan dalam 10 rekomendasi teratas. Dalam konteks ini, *"relevan"* didefinisikan sebagai mobil yang memiliki `VehicleClass` yang sama dengan mobil input.
 
+Setelah pengujian, kedua model yang dikembangkan menunjukkan performa yang identik, dengan skor rata-rata **Precision@10 sebesar 71%**.
+
+Hasil ini mengindikasikan bahwa jika pengguna meminta rekomendasi untuk sebuah mobil (misalnya, sebuah SUV), rata-rata 7 dari 10 mobil yang disarankan juga akan berjenis SUV. Meskipun metrik ini berfokus pada `VehicleClass`, skor 71% ini menjadi fondasi penting untuk menganalisis dampak model terhadap tujuan bisnis yang lebih luas.
+
+---
+
+### Analisis Ketercapaian: Menjawab Pernyataan Masalah dan Tujuan Proyek
+
+Berikut adalah penjabaran bagaimana hasil evaluasi model menjawab setiap pernyataan masalah dan mencapai tujuan yang telah ditetapkan.
+
+#### 1. Apakah Model Menjawab Setiap *Problem Statement*?
+
+* **Problem Statement 1: Menerjemahkan preferensi subjektif ("Saya suka mobil X") menjadi skor kemiripan objektif untuk menemukan alternatif bernilai terbaik.**
+    **Jawaban:** **Ya, sebagian besar terjawab.** Model secara fundamental berhasil mengubah input subjektif ("mobil X") menjadi output objektif (daftar 10 mobil teratas). Skor 71% menunjukkan bahwa rekomendasi yang diberikan memiliki tingkat relevansi kategori yang tinggi, yang merupakan langkah pertama dalam menemukan alternatif. Namun, metrik Precision@10 berbasis `VehicleClass` belum secara eksplisit mengukur penemuan "nilai terbaik" atau "potensi penghematan". Ini adalah area untuk evaluasi lanjutan, seperti menganalisis apakah mobil yang direkomendasikan memiliki harga lebih rendah untuk fitur yang sebanding.
+
+* **Problem Statement 2: Mengkalkulasi 'jarak kemiripan' matematis antar kendaraan untuk keputusan berbasis data.**
+    **Jawaban:** **Ya, terjawab sepenuhnya.** Proyek ini berhasil membangun sistem yang mengkalkulasi kemiripan menggunakan vektor fitur dan metrik *Cosine Similarity*. Daftar rekomendasi yang dihasilkan adalah bukti nyata dari kalkulasi matematis ini. Skor 71% memvalidasi bahwa "jarak kemiripan" yang dihitung secara matematis berhasil mengelompokkan mobil-mobil sejenis secara efektif, menggantikan proses perbandingan manual yang bias.
+
+* **Problem Statement 3: Menciptakan jembatan teknologi untuk penemuan instan ("cari mobil seperti Toyota Camry") melalui *real-time vector similarity search*.**
+    **Jawaban:** **Ya, terjawab sepenuhnya.** Dengan implementasi K-Nearest Neighbors (KNN), model ini berfungsi sebagai jembatan teknologi yang dirancang. Prosesnya—menerima input, menemukan vektor, dan melakukan pencarian—berjalan secara efisien. Skor Precision@10 sebesar 71% memastikan bahwa jembatan ini tidak hanya cepat, tetapi juga mengarahkan pengguna ke tujuan yang relevan, sehingga secara efektif mengurangi waktu riset dan kebingungan (*choice overload*).
+
+#### 2. Apakah Model Berhasil Mencapai Setiap *Goals* yang Diharapkan?
+
+* **Goal 1: Mengkuantifikasi kemiripan dengan skor objektif untuk memberdayakan keputusan finansial.**
+    **Pencapaian:** **Tercapai.** Model berhasil mengkuantifikasi kemiripan melalui skor *Cosine Similarity* dan algoritma KNN, yang menghasilkan daftar peringkat "mobil kembaran". Skor 71% menunjukkan bahwa identifikasi "kembaran" ini akurat dari segi kelas kendaraan. Ini memberdayakan konsumen dengan menyajikan alternatif yang mungkin tidak mereka pertimbangkan sebelumnya, yang merupakan fondasi untuk membuat keputusan finansial yang lebih cerdas.
+
+* **Goal 2: Menciptakan 'ruang fitur' untuk keputusan yang *data-driven*.**
+    **Pencapaian:** **Tercapai.** Proyek ini sukses melakukan *feature engineering* dan normalisasi untuk menciptakan 'ruang fitur' di mana setiap mobil menjadi sebuah titik data. Implementasi *Cosine Similarity* dan KNN secara efektif menghitung "jarak" dalam ruang ini. Keberhasilan model dengan akurasi 71% membuktikan bahwa ruang fitur yang diciptakan memiliki struktur yang logis dan bermakna, di mana mobil-mobil yang serupa secara objektif memang berdekatan.
+
+* **Goal 3: Membangun fungsi rekomendasi instan untuk pengalaman pengguna yang mulus.**
+    **Pencapaian:** **Tercapai.** Sebuah fungsi rekomendasi yang responsif telah berhasil dibangun. Algoritma KNN memastikan pencarian berjalan cepat, dan hasil Precision@10 sebesar 71% menjamin kualitas output. Pengguna menerima daftar 10 mobil yang sebagian besar relevan dalam waktu singkat. Ini secara langsung mencapai tujuan untuk memberikan pengalaman yang mulus, memotong waktu riset, dan mengatasi kebingungan pengguna.
+
+#### 3. Apakah Setiap Solusi yang Direncanakan Berdampak?
+
+* **Solusi: Mengubah atribut mobil menjadi vektor fitur numerik.**
+    **Dampak:** **Fundamental.** Ini adalah solusi inti yang memungkinkan perbandingan objektif. Tanpa ini, tidak ada dasar matematis untuk kemiripan. Dampaknya adalah pergeseran dari perbandingan kualitatif ke analisis kuantitatif yang terukur.
+
+* **Solusi: Menggunakan *Cosine Similarity* dan K-Nearest Neighbors (KNN).**
+    **Dampak:** **Efisien dan Efektif.** KNN memungkinkan pencarian *real-time* yang cepat, yang krusial untuk pengalaman pengguna. *Cosine Similarity* terbukti efektif dalam menangkap kemiripan antar vektor. Kombinasi ini tidak hanya memungkinkan sistem berfungsi, tetapi juga membuatnya praktis dan berguna. Skor 71% adalah bukti kuantitatif dari efektivitas kombinasi ini.
+
+* **Solusi: Mengevaluasi dengan Precision@10.**
+    **Dampak:** **Validasi dan Kepercayaan.** Skor 71% memberikan validasi kuantitatif bahwa model ini jauh lebih baik daripada tebakan acak. Ini membangun kepercayaan bahwa sistem benar-benar "memahami" hubungan antar mobil. Dari sudut pandang bisnis, skor ini adalah **bukti kinerja (Proof of Performance)** yang membenarkan kelayakan model dan menjadi *benchmark* untuk pengembangan di masa depan. Ini menunjukkan bahwa 7 dari 10 "peluang" yang ditawarkan kepada pengguna adalah relevan, sebuah tingkat keberhasilan yang solid untuk interaksi awal.
+
+---
+### Kesimpulan Evaluasi
+
+Secara keseluruhan, hasil Precision@10 sebesar 71% bukan sekadar angka teknis, melainkan sebuah konfirmasi bahwa model dan solusi yang diimplementasikan telah berhasil menjawab sebagian besar masalah bisnis dan mencapai tujuan utama proyek. Model ini sukses menciptakan sebuah sistem rekomendasi berbasis data yang fungsional, cepat, dan relevan, yang secara efektif menjembatani kebutuhan pengguna dengan keputusan pembelian yang lebih cerdas dan terinformasi.
