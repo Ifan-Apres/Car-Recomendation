@@ -236,7 +236,8 @@ Untuk contoh, penulis menggunakan mobil dengan model Viper SRT-10 convertible 2d
 Untuk mengukur performa sistem rekomendasi mobil yang telah dibuat, digunakan pendekatan evaluasi yang menggabungkan analisis kualitatif dan kuantitatif. Karena ini adalah masalah unsupervised learning (content-based filtering) di mana tidak ada label "benar" atau "salah" yang absolut, metrik evaluasi yang dipilih harus dapat mengukur relevansi dan akurasi dari rekomendasi yang dihasilkan.
 
 Metrik evaluasi utama yang digunakan adalah Analisis Kualitatif (Case Study) dan Precision@k.
-###1. Case Study
+
+### 1. Case Study
 Analisis kualitatif dilakukan dengan menguji beberapa input mobil yang representatif dan secara manual memeriksa kualitas dari Top-N rekomendasi yang dihasilkan. Tujuannya adalah untuk mendapatkan pemahaman intuitif apakah model bekerja dengan logis.
 
 Saat model (Cosine Similarity & K-Nearest Neighbors) diuji dengan input mobil "Viper SRT-10 convertible 2dr", sistem berhasil merekomendasikan mobil-mobil yang sangat relevan. Dari model Cosine Similarity 5 rekomendasi teratas, mayoritas adalah mobil dari kelas Sport juga, seperti Chevrolet Corvette convertible 2d, CLK500 coupe 2dr (convertible), dan XLR convertible 2dr.
